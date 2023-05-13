@@ -2,31 +2,45 @@ let img;
 let smallImage;
 let scl =20;
 let images = [];
-let brightness = [];
+let brightnessVal = [];
 let brightnessImages = [];
 
 
 function preload() {
-  img = loadImage('https://upload.wikimedia.org/wikipedia/commons/3/30/Shih-Tzu.JPG');
-    /*for (let x = 0; x <= 10; x++){
-      images[x] = loadImage('assets/' + str(x) + '.jpg');
-      let avg = 0;
-      for(let i = 0; i < images[x].width; i++){
-      images[x].loadPixels();
-      let b = brightness(images[x].pixels[i]);
-      avg += b;
-    };
-    avg = avg/ (images[x].width * images[x].height);
-    brightness[x] = avg;
-  };*/
+  img = loadImage('assets/shitzu_lindo.jpg');
+  for (let x = 0; x <= 40; x++){
+    images[x] = loadImage('assets/' + str(x) + '.jpg');
+  };
+
 }
+
+function keyPressed(){
+  if(key === 'r'){
+    let randomIndex = Math.floor(random(images.length));
+    img = loadImage('assets/' + str(randomIndex) + '.jpg');
+    
+  }
+  img.resize(400, 400);
+
+}
+
 
 function setup() {
   p_slider = createSlider(1,100,1)
   createCanvas(400, 400);
   img.resize(400, 400);
-  brightness = [256];
-  
+
+  for (let x = 0; x <= 40; x++){
+    let avg = 0;
+    images[x].loadPixels();
+    for(let i = 0; i < images[x].pixels.length; i += 4){
+      let b = brightness(color(images[x].pixels[i], images[x].pixels[i+1], images[x].pixels[i+2]));
+      avg += b;
+    }
+      avg = avg/(images[x].pixels.length/4);
+      brightnessVal[x] = avg;
+  }
+    
 }
 
 function draw(){
@@ -45,14 +59,23 @@ function draw(){
       let r = smallImage.pixels[index];
       let g = smallImage.pixels[index + 1];
       let b = smallImage.pixels[index + 2];
-      let l = (r + g + b)/0.0000001;
-      let col = color(r, g, b, l);
-      fill(col);
-      noStroke();
-      rect(i*scl, j*scl , scl, scl)
+      let l = (r + g + b)/0.0001;
+      let bright = brightness(color(r, g, b));
+      let min = 255;
+      let minIndex = 0;
+      for (let x = 0; x <= 40; x++){
+        if (abs(brightnessVal[x] - bright) < min){
+          min = abs(brightnessVal[x] - bright);
+          minIndex = x;
+        }
+      }
+
+      image(images[minIndex], i*scl, j*scl, scl, scl);
+
     }
   }
   
+
 
 
 }
