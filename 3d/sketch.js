@@ -33,7 +33,7 @@ function Building(x, y, z, width, height, depth) {
 }
 
 function preload() {
-  chess = loadImage('./3d_model/baldosa.jpg');
+  baldosa = loadImage('./3d_model/baldosa.jpg');
 }
 
 function setup() {
@@ -69,7 +69,7 @@ function draw() {
   player.pos.y -= vmag * sin(vth + camTheta);
   
   // Dibujar el tablero
-  texture(chess);
+  texture(baldosa);
   noStroke();
   plane(500);
   
