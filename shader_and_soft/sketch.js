@@ -45,6 +45,7 @@ function loadImageAndApplyEffect() {
     img = loadedImg;
     originalImg.elt.src = imagePath; // Establece la ruta de la imagen original
     originalImg.size(200,200); // Establece el tamaño de la imagen original
+    background(255);
     redraw();
   });
 }
@@ -65,12 +66,14 @@ function applyZoomEffect() {
 }
 
 function draw() {
+  
   if (!img) return;
 
   shader(shaderProgram);
   shaderProgram.setUniform('u_texture', img);
 
   if (currentEffect === 'vignette') {
+    
     shaderProgram.setUniform('u_radius', 0.5);
     shaderProgram.setUniform('u_softness', 0.2);
   } else if (currentEffect === 'unfocus') {

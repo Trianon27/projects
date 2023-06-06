@@ -2,13 +2,9 @@ let img;
 let shaderProgram;
 let currentEffect = 'vignette';
 let toggleButton;
-let intervalId; // Variable para almacenar el ID del intervalo
-
-let vertices = [];
-let interval = 1000;
 
 function preload() {
-  shaderProgram = loadShader('shaders/shader.vert', 'shaders/vignette.frag');
+  shaderProgram = loadShader('shaders/shader.vert', 'shaders/unfocus.frag');
 }
 
 function setup() {
@@ -18,22 +14,10 @@ function setup() {
   toggleButton = createButton('Cambiar efecto');
   toggleButton.position(10, height + 10);
   toggleButton.mousePressed(toggleEffect);
-
-  reloadButton = createButton('Recargar imagen');
-  reloadButton.position(130, height + 10);
-  reloadButton.mousePressed(reloadImageAndApplyEffect);
-
-  intervalId = setInterval(changeVertexValues, interval);
-
-  // Inicializa los vértices del dibujo con valores aleatorios
-  for (let i = 0; i < 4; i++) {
-    vertices.push([random(-1, 1), random(-1, 1)]);
-  }
 }
 
 function loadImageAndApplyEffect() {
-  let randomNum = Math.floor(random(0, 40));
-  loadImage('assets/' + str(randomNum) + '.jpg', function(loadedImg) {
+  loadImage('https://upload.wikimedia.org/wikipedia/commons/3/30/Shih-Tzu.JPG', function(loadedImg) {
     img = loadedImg;
     redraw();
   });
@@ -64,19 +48,20 @@ function draw() {
   shaderProgram.setUniform('u_texture', img);
 
   if (currentEffect === 'vignette') {
+    background(255);
     shaderProgram.setUniform('u_radius', 0.5);
     shaderProgram.setUniform('u_softness', 0.2);
   } else if (currentEffect === 'unfocus') {
     shaderProgram.setUniform('u_blurAmount', 0.02);
   } else if (currentEffect === 'zoom') {
-    shaderProgram.setUniform('u_zoomAmount', 1.5);
+    shaderProgram.setUniform('u_zoomAmount', 1.5); // Ajusta el valor de zoom aquí
   }
 
   beginShape();
-  for (let i = 0; i < 4; i++) {
-    let vertexData = vertices[i];
-    vertex(vertexData[0], vertexData[1], i % 2, floor(i / 2));
-  }
+  vertex(-1, -1, 0, 0);
+  vertex(1, -1, 1, 0);
+  vertex(1, 1, 1, 1);
+  vertex(-1, 1, 0, 1);
   endShape(CLOSE);
 }
 
@@ -88,26 +73,6 @@ function toggleEffect() {
   } else {
     applyVignetteEffect();
   }
-}
-
-function reloadImageAndApplyEffect() {
-  loadImageAndApplyEffect();
-}
-
-function changeVertexValues() {
-  // Genera nuevos valores aleatorios para los vértices
-  for (let i = 0; i < 4; i++) {
-    vertices[i] = [random(-1, 1), random(-1, 1)];
-  }
-
-  redraw(); // Vuelve a dibujar la escena con los nuevos valores
-}
-
-function changeInterval() {
-  // Cambia el intervalo del setInterval
-  interval = intervalSlider.value();
-  clearInterval(intervalId); // Cancela el intervalo actual utilizando el ID almacenado
-  intervalId = setInterval(changeVertexValues, interval); // Establece el nuevo intervalo
 }
 
 loadImageAndApplyEffect();
