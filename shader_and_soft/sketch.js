@@ -1,7 +1,9 @@
 let img;
+let originalImg;
 let shaderProgram;
 let currentEffect = 'vignette';
 let toggleButton;
+let intervalSlider;
 let intervalId; // Variable para almacenar el ID del intervalo
 
 let vertices = [];
@@ -15,13 +17,14 @@ function setup() {
   createCanvas(400, 400, WEBGL);
   noLoop();
 
-  toggleButton = createButton('Cambiar efecto');
+  toggleButton = createButton('Cambiar imagen y efecto');
   toggleButton.position(10, height + 10);
-  toggleButton.mousePressed(toggleEffect);
+  toggleButton.mousePressed(changeImageAndEffect);
 
-  reloadButton = createButton('Recargar imagen');
-  reloadButton.position(130, height + 10);
-  reloadButton.mousePressed(reloadImageAndApplyEffect);
+  intervalSlider = createSlider(1, 1000, interval, 10);
+  intervalSlider.position(250, height + 10);
+  intervalSlider.style('width', '140px');
+  intervalSlider.input(changeInterval);
 
   intervalId = setInterval(changeVertexValues, interval);
 
@@ -29,12 +32,19 @@ function setup() {
   for (let i = 0; i < 4; i++) {
     vertices.push([random(-1, 1), random(-1, 1)]);
   }
+  
+  originalImg = createImg('');
+  originalImg.position(width + 20, 10);
 }
 
 function loadImageAndApplyEffect() {
   let randomNum = Math.floor(random(0, 40));
-  loadImage('assets/' + str(randomNum) + '.jpg', function(loadedImg) {
+  let imagePath = 'assets/' + str(randomNum) + '.jpg';
+
+  loadImage(imagePath, function(loadedImg) {
     img = loadedImg;
+    originalImg.elt.src = imagePath; // Establece la ruta de la imagen original
+    originalImg.size(200,200); // Establece el tamaño de la imagen original
     redraw();
   });
 }
@@ -42,19 +52,16 @@ function loadImageAndApplyEffect() {
 function applyVignetteEffect() {
   shaderProgram = loadShader('shaders/shader.vert', 'shaders/vignette.frag');
   currentEffect = 'vignette';
-  loadImageAndApplyEffect();
 }
 
 function applyUnfocusEffect() {
   shaderProgram = loadShader('shaders/shader.vert', 'shaders/unfocus.frag');
   currentEffect = 'unfocus';
-  loadImageAndApplyEffect();
 }
 
 function applyZoomEffect() {
   shaderProgram = loadShader('shaders/shader.vert', 'shaders/zoom.frag');
   currentEffect = 'zoom';
-  loadImageAndApplyEffect();
 }
 
 function draw() {
@@ -80,7 +87,9 @@ function draw() {
   endShape(CLOSE);
 }
 
-function toggleEffect() {
+function changeImageAndEffect() {
+  loadImageAndApplyEffect();
+
   if (currentEffect === 'vignette') {
     applyUnfocusEffect();
   } else if (currentEffect === 'unfocus') {
@@ -88,10 +97,6 @@ function toggleEffect() {
   } else {
     applyVignetteEffect();
   }
-}
-
-function reloadImageAndApplyEffect() {
-  loadImageAndApplyEffect();
 }
 
 function changeVertexValues() {
